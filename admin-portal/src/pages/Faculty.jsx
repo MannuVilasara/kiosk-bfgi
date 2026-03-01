@@ -16,6 +16,8 @@ import {
   Activity,
   X,
   Camera,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageLoader, Card, FormInput, Button, SearchInput } from '../components/ui';
@@ -28,6 +30,8 @@ const Faculty = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState('All');
   const [isDragging, setIsDragging] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const { user } = useContext(authContext);
   const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
@@ -175,6 +179,15 @@ const Faculty = () => {
       return matchesSearch && matchesDept;
     });
   }, [faculty, searchQuery, selectedDept]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedDept]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredFaculty.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredFaculty.length / itemsPerPage);
 
   if (loading) return <PageLoader message="Loading Faculty..." />;
 
@@ -339,7 +352,7 @@ const Faculty = () => {
 
         {/* Faculty List */}
         <Card
-          className={isAdmin ? 'col-span-2' : 'col-span-1'}
+          className={`${isAdmin ? 'col-span-2' : 'col-span-1'} flex flex-col h-[750px]`}
           headerIcon={Users}
           headerTitle="Faculty Directory"
           headerSubtitle="All registered faculty"
@@ -366,9 +379,9 @@ const Faculty = () => {
             </div>
           }
         >
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto flex-1">
             <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-100">
+              <thead className="bg-slate-50 border-b border-slate-100 sticky top-0 z-10">
                 <tr className="text-left">
                   <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Faculty
@@ -387,8 +400,8 @@ const Faculty = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredFaculty.length > 0 ? (
-                  filteredFaculty.map((member) => (
+                {currentItems.length > 0 ? (
+                  currentItems.map((member) => (
                     <tr key={member._id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -454,6 +467,50 @@ const Faculty = () => {
               </tbody>
             </table>
           </div>
+
+          {totalPages > 1 && (
+            <div className="mt-auto flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-[20px]">
+              <p className="text-xs text-slate-500 font-medium">
+                Showing <span className="font-bold text-slate-700">{indexOfFirstItem + 1}</span> to{' '}
+                <span className="font-bold text-slate-700">
+                  {Math.min(indexOfLastItem, filteredFaculty.length)}
+                </span>{' '}
+                of <span className="font-bold text-slate-700">{filteredFaculty.length}</span>{' '}
+                faculty
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-7 h-7 flex items-center justify-center rounded-md text-xs font-bold transition-all ${
+                        currentPage === i + 1
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </Card>
       </div>
     </div>
