@@ -27,7 +27,7 @@
       {
         "provider": "github",
         "owner": "ikeshav26",
-        "repo": "_kiosk"
+        "repo": "_kiosk", "releaseType": "release"
       }
     ],
     "linux": {
