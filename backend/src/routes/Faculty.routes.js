@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   addFaculty,
+  bulkAddFaculty,
   deleteFaculty,
   getAllFaculties,
   getFacultyById,
@@ -10,6 +11,7 @@ import {
 const router = express.Router();
 
 router.post('/add', addFaculty);
+router.post('/bulk-add', bulkAddFaculty);
 router.get('/all', getAllFaculties);
 router.get('/:id', getFacultyById);
 router.get('/delete/:id', deleteFaculty);

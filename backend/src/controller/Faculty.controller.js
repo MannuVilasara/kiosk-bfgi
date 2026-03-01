@@ -64,6 +64,56 @@ export const addFaculty = async (req, res) => {
   }
 };
 
+export const bulkAddFaculty = async (req, res) => {
+  try {
+    const list = Array.isArray(req.body) ? req.body : req.body.faculties;
+    if (!Array.isArray(list) || list.length === 0) {
+      return res.status(400).json({ message: 'Provide an array of faculty objects.' });
+    }
+
+    const added  = [];
+    const failed = [];
+
+    for (const item of list) {
+      try {
+        const upload = await cloudinary.uploader.upload(item.imageUrl, {
+          folder: 'faculty_images',
+        });
+
+        const translations = await buildTranslations(
+          item.facultyName,
+          item.designation,
+          item.qualification
+        );
+
+        const faculty = await new Faculty({
+          facultyName:     item.facultyName,
+          designation:     item.designation,
+          qualification:   item.qualification,
+          totalExperience: item.totalExperience,
+          imageUrl:        upload.secure_url,
+          email:           item.email       || '',
+          phoneNumber:     item.phoneNumber || '',
+          department:      item.department  || 'CSE',
+          translations,
+        }).save();
+
+        added.push(faculty);
+      } catch (err) {
+        failed.push({ facultyName: item.facultyName, error: err.message });
+      }
+    }
+
+    res.status(201).json({
+      message: `${added.length} added, ${failed.length} failed.`,
+      added,
+      failed,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const getAllFaculties = async (req, res) => {
   try {
     const faculties = await Faculty.find();
