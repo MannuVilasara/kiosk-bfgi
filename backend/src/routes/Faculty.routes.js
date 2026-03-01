@@ -13,7 +13,7 @@ router.post('/add', addFaculty);
 router.get('/all', getAllFaculties);
 router.get('/:id', getFacultyById);
 router.get('/delete/:id', deleteFaculty);
-router.get('/update/:id',updateFaculty)
+router.put('/update/:id',updateFaculty)
 
 export default router;
   

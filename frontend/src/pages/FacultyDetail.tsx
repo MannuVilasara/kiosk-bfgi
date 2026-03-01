@@ -23,13 +23,24 @@ interface FacultyMember {
   email: string;
   phoneNumber: string;
   department: 'CSE' | 'ECE' | 'MECH' | 'CIVIL' | 'EEE' | 'IT';
+  translations?: Record<string, { facultyName?: string; designation?: string; qualification?: string }>;
   __v?: number;
 }
+
+/** Get a translated field, falling back to the English (root) value. */
+const localized = (
+  member: FacultyMember,
+  field: 'facultyName' | 'designation' | 'qualification',
+  lang: string
+): string => {
+  if (lang === 'en') return member[field];
+  return member.translations?.[lang]?.[field] || member[field];
+};
 
 const FacultyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [data, setData] = useState<FacultyMember | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,9 +136,9 @@ const FacultyDetail = () => {
               </span>
             </div>
             <h1 className="text-6xl font-black text-[#002b5c] tracking-tighter leading-none mb-4">
-              {data.facultyName}
+              {localized(data, 'facultyName', i18n.language)}
             </h1>
-            <p className="text-2xl font-medium text-slate-400 italic">{data.designation}</p>
+            <p className="text-2xl font-medium text-slate-400 italic">{localized(data, 'designation', i18n.language)}</p>
           </div>
         </section>
 
@@ -149,7 +160,7 @@ const FacultyDetail = () => {
                       {t('facultyDetail.highestQualification')}
                     </p>
                     <p className="text-xl font-bold text-slate-700 leading-snug">
-                      {data.qualification}
+                      {localized(data, 'qualification', i18n.language)}
                     </p>
                   </div>
                 </div>

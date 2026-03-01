@@ -1,5 +1,28 @@
 import cloudinary from '../config/Cloudinary.js';
 import Faculty from '../models/Faculty.model.js';
+import { translateText } from '../utils/translate.js';
+
+/**
+ * Translate faculty text fields to hi & pa and return a translations map.
+ * Runs Hindi & Punjabi translations in parallel for speed.
+ */
+const buildTranslations = async (facultyName, designation, qualification) => {
+  const fields = [
+    { key: 'facultyName', value: facultyName },
+    { key: 'designation', value: designation },
+    { key: 'qualification', value: qualification },
+  ];
+
+  const [hiResults, paResults] = await Promise.all([
+    Promise.all(fields.map((f) => translateText(f.value || '', 'hi'))),
+    Promise.all(fields.map((f) => translateText(f.value || '', 'pa'))),
+  ]);
+
+  return {
+    hi: { facultyName: hiResults[0], designation: hiResults[1], qualification: hiResults[2] },
+    pa: { facultyName: paResults[0], designation: paResults[1], qualification: paResults[2] },
+  };
+};
 
 export const addFaculty = async (req, res) => {
   try {
@@ -18,6 +41,9 @@ export const addFaculty = async (req, res) => {
       folder: 'faculty_images',
     });
 
+    // Translate text fields to hi & pa
+    const translations = await buildTranslations(facultyName, designation, qualification);
+
     const newFaculty = new Faculty({
       facultyName,
       designation,
@@ -27,6 +53,7 @@ export const addFaculty = async (req, res) => {
       email,
       phoneNumber,
       department,
+      translations,
     });
 
     await newFaculty.save();
@@ -79,7 +106,7 @@ export const deleteFaculty = async (req, res) => {
 export const updateFaculty=async(req,res)=>{
   try{
     const {id}=req.params;
-    const {
+    let {
       facultyName,
       designation,
       qualification,
@@ -90,12 +117,15 @@ export const updateFaculty=async(req,res)=>{
       department,
     } = req.body;
 
-    if(imageUrl){
+    if(imageUrl && imageUrl.startsWith('data:')){
       const uploadImage = await cloudinary.uploader.upload(imageUrl, {
         folder: 'faculty_images',
       });
       imageUrl=uploadImage.secure_url;
     }
+
+    // Re-translate text fields
+    const translations = await buildTranslations(facultyName, designation, qualification);
 
     const updatedFaculty = await Faculty.findByIdAndUpdate(id, {
       facultyName,
@@ -106,6 +136,7 @@ export const updateFaculty=async(req,res)=>{
       email,
       phoneNumber,
       department,
+      translations,
     }, { new: true });
 
     if (!updatedFaculty) {

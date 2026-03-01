@@ -21,6 +21,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import Settings from './pages/Settings';
 import Ticket from './pages/Ticket';
 import Blocks from './pages/Blocks';
+import UpdateFaculty from './pages/UpdateFaculty';
 
 const ProtectedRoute = ({ user, children }) => {
   const location = useLocation();
@@ -66,6 +67,7 @@ const App = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/ticket/:id" element={<Ticket />} />
           <Route path='/blocks' element={<Blocks/>}/>
+          <Route path='/update-faculty/:id' element={<UpdateFaculty/>}/>
         </Route>
       </Routes>
       {!isLoginPage && <Footer />}

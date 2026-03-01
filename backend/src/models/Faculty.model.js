@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+const TranslatedFieldSchema = new mongoose.Schema(
+  {
+    facultyName: { type: String, default: '' },
+    designation: { type: String, default: '' },
+    qualification: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
 const FacultySchema = new mongoose.Schema({
   facultyName: {
     type: String,
@@ -25,6 +34,11 @@ const FacultySchema = new mongoose.Schema({
   department: {
     type: String,
     enum: ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'],
+  },
+  translations: {
+    type: Map,
+    of: TranslatedFieldSchema,
+    default: {},
   },
 });
 

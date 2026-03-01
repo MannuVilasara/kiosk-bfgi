@@ -22,10 +22,21 @@ interface FacultyMember {
   email: string;
   phoneNumber: string;
   department: 'CSE' | 'ECE' | 'MECH' | 'CIVIL' | 'EEE' | 'IT';
+  translations?: Record<string, { facultyName?: string; designation?: string; qualification?: string }>;
   __v?: number;
 }
 
 const DEPARTMENTS = ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'] as const;
+
+/** Get a translated field, falling back to the English (root) value. */
+const localized = (
+  member: FacultyMember,
+  field: 'facultyName' | 'designation' | 'qualification',
+  lang: string
+): string => {
+  if (lang === 'en') return member[field];
+  return member.translations?.[lang]?.[field] || member[field];
+};
 
 export const Faculty = () => {
   const [faculty, setFaculty] = useState<FacultyMember[]>([]);
@@ -34,7 +45,7 @@ export const Faculty = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const fetchFaculty = async () => {
     setLoading(true);
@@ -57,7 +68,7 @@ export const Faculty = () => {
   const filteredFaculty = useMemo(() => {
     return faculty.filter((member) => {
       const matchesDept = member.department === selectedDept;
-      const matchesSearch = member.facultyName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = localized(member, 'facultyName', i18n.language).toLowerCase().includes(searchQuery.toLowerCase());
       return matchesDept && matchesSearch;
     });
   }, [faculty, selectedDept, searchQuery]);
@@ -148,10 +159,10 @@ export const Faculty = () => {
 
                 <div className="flex-1 flex flex-col min-w-0 mb-5">
                   <h3 className="text-xl font-black text-[#002b5c] tracking-tight leading-tight line-clamp-1 mb-1">
-                    {member.facultyName}
+                    {localized(member, 'facultyName', i18n.language)}
                   </h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                    {member.designation}
+                    {localized(member, 'designation', i18n.language)}
                   </p>
                 </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/Instance';
 import {
   Users,
@@ -30,6 +31,7 @@ const Faculty = () => {
 
   const { user } = useContext(authContext);
   const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const departments = ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'];
 
@@ -413,7 +415,10 @@ const Faculty = () => {
                       {isAdmin && (
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-1">
-                          <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                          <button
+                            onClick={() => navigate(`/update-faculty/${member._id}`)}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
                             <Edit3 size={15} />
                           </button>
                           <button
