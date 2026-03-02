@@ -18,7 +18,7 @@ const Campus360 = lazy(() => import('./pages/Campus360'));
 const FacultyDetail = lazy(() => import('./pages/FacultyDetail'));
 const BlockDetail = lazy(() => import('./pages/BlockDetail'));
 const Settings = lazy(() => import('./pages/Settings'));
-
+const Timetable=lazy(() => import('./pages/Timetable'));
 const App = () => {
   useInactivityTimer();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -66,6 +66,7 @@ const App = () => {
                 <Route path="/faculty/:id" element={<FacultyDetail />} />
                 <Route path="/block/:id" element={<BlockDetail />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path='/time-table/:id' element={<Timetable />} />
               </Routes>
             </Suspense>
           </div>

@@ -8,8 +8,8 @@ const router=express.Router()
 
 
 router.post('/add',auth,addSchedule)
-router.get('/all',auth,getAllSchedules)
-router.get('/:id',auth,getScheduleById)
+router.get('/all',getAllSchedules)
+router.get('/:id',getScheduleById)
 router.delete('/delete/:id',auth,deleteSchedule)
 router.put('/update/:id',auth,updateSchedule)
 
