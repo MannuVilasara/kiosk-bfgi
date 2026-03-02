@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 const axiosInstance = axios.create({
   baseURL: import.meta.env.PROD ? 'http://localhost:3000' : undefined,
   withCredentials: true,
+  maxBodyLength: 52428800, 
+  maxContentLength: 52428800,
 });
 
 let _logoutHandler = null;

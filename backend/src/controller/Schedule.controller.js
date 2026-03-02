@@ -6,7 +6,10 @@ export const addSchedule=async(req,res)=>{
     try{
         const {departmentName,semester,sectionName,scheduleLink}=req.body;
 
-        const cloudinaryRes=await cloudinary.uploader.upload(scheduleLink, { resource_type: 'auto' })
+        const cloudinaryRes=await cloudinary.uploader.upload(scheduleLink, {
+            resource_type: 'raw',
+            folder: 'schedules',
+        })
         const schedule=new Schedule({
             departmentName,
             semester,
@@ -49,7 +52,10 @@ export const updateSchedule=async(req,res)=>{
         let { scheduleLink }=req.body;
 
         if(scheduleLink){
-            const cloudinaryRes=await cloudinary.uploader.upload(scheduleLink, { resource_type: 'auto' })
+            const cloudinaryRes=await cloudinary.uploader.upload(scheduleLink, {
+                resource_type: 'raw',
+                folder: 'schedules',
+            })
             scheduleLink=cloudinaryRes.secure_url;
         }
 

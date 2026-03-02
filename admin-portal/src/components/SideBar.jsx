@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Settings,
   Building,
+  CalendarDays,
 } from 'lucide-react';
 import axiosInstance from '../utils/Instance';
 import { authContext } from '../context/AuthContext';
@@ -19,6 +20,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
     { label: 'Faculty', icon: Users, route: '/faculty' },
     { label: 'Blocks', icon: Building, route: '/blocks' },
+    { label: 'Schedule', icon: CalendarDays, route: '/schedule' },
     { label: 'Notifications', icon: Bell, route: '/notifications' },
     { label: 'Help Tickets', icon: Ticket, route: '/help-requests' },
   ];

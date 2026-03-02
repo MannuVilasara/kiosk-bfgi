@@ -22,6 +22,7 @@ import Settings from './pages/Settings';
 import Ticket from './pages/Ticket';
 import Blocks from './pages/Blocks';
 import UpdateFaculty from './pages/UpdateFaculty';
+import Schedule from './pages/Schedule';
 
 const ProtectedRoute = ({ user, children }) => {
   const location = useLocation();
@@ -70,6 +71,7 @@ const App = () => {
           <Route path="/ticket/:id" element={<Ticket />} />
           <Route path="/blocks" element={<Blocks />} />
           <Route path="/update-faculty/:id" element={<UpdateFaculty />} />
+          <Route path="/schedule" element={<Schedule />} />
         </Route>
       </Routes>
       {!isLoginPage && <Footer />}
