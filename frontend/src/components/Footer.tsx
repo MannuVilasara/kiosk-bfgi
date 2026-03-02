@@ -43,7 +43,7 @@ const Footer = () => {
   }, [i18n.language]);
 
   return (
-    <footer className="w-full h-16 flex bg-white border-t border-slate-200 overflow-hidden select-none z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+    <footer className="w-full h-22 flex bg-white border-t border-slate-200 overflow-hidden select-none z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
       <div className="w-[65%] h-full bg-[#002b5c] relative flex items-center overflow-hidden">
         <div className="absolute left-0 top-0 h-full px-8 bg-[#001f3f] flex items-center z-20 shadow-[10px_0_25px_rgba(0,0,0,0.4)] border-r border-white/10">
           <div className="flex items-center gap-3">

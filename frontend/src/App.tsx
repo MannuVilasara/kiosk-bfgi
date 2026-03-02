@@ -1,12 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import SidePanel from './components/SidePannel';
 import useInactivityTimer from './hooks/TrackInactivity';
 import { Toaster } from 'react-hot-toast';
 
-// Lazy load pages for code-splitting (Vite Option 1)
+
 const Navigation = lazy(() => import('./pages/Navigation'));
 const HelpDesk = lazy(() => import('./pages/HelpDesk'));
 const Announcements = lazy(() => import('./pages/Announcements'));
@@ -21,6 +21,8 @@ const Settings = lazy(() => import('./pages/Settings'));
 
 const App = () => {
   useInactivityTimer();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
     <div className="h-screen w-screen overflow-hidden bg-gray-100 flex flex-col">
       <div className="fixed top-0 left-0 w-full z-50">
@@ -28,11 +30,20 @@ const App = () => {
       </div>
 
       <div className="flex flex-1 mt-32 mb-16 relative">
-        <div className="fixed top-36 left-4 bottom-20 z-40 w-[400px]">
-          <SidePanel />
+        <div
+          className="fixed top-36 left-4 bottom-26 z-40 transition-all duration-300 ease-in-out overflow-visible"
+          style={{ width: isSidebarCollapsed ? 100 : 400 }}
+        >
+          <SidePanel
+            isCollapsed={isSidebarCollapsed}
+            onToggle={() => setIsSidebarCollapsed((prev) => !prev)}
+          />
         </div>
 
-        <div className="fixed top-36 left-[430px] right-0 bottom-20 pr-6 z-30">
+        <div
+          className="fixed top-36 right-0 bottom-26 pr-6 ml-6 z-30 transition-all duration-300 ease-in-out"
+          style={{ left: isSidebarCollapsed ? 130 : 430 }}
+        >
           <div className="h-full w-full">
             <Suspense
               fallback={
