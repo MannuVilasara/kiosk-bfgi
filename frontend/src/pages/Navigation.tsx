@@ -10,6 +10,13 @@ interface LatLng {
   lat: number;
   lng: number;
 }
+interface BuildingLabel {
+  id: string;
+  name: string;
+  sub?: string;
+  lat: number;
+  lng: number;
+}
 interface MapNode {
   id: string;
   lat: number;
@@ -67,21 +74,28 @@ const Navigation = () => {
   const routeLayerRef = useRef<L.Polyline | null>(null);
   const startMarkerRef = useRef<L.CircleMarker | null>(null);
   const endMarkerRef = useRef<L.CircleMarker | null>(null);
+  const buildingLayerGroupRef = useRef<L.LayerGroup | null>(null);
 
   const [mapData, setMapData] = useState<MapData | null>(null);
+  const [buildingLabels, setBuildingLabels] = useState<BuildingLabel[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [activePathId, setActivePathId] = useState<string | null>(null);
   const [mapStarted, setMapStarted] = useState(false);
 
-  // ── 1. Fetch map data from API when user starts navigation ──────────────
+  // ── 1. Fetch map data + building labels in parallel ─────────────────────
   useEffect(() => {
     if (!mapStarted) return;
     setLoadingData(true);
     setDataError(null);
-    axios
-      .get('/api/kiosk/map-data')
-      .then((res) => setMapData(res.data))
+    Promise.all([
+      axios.get('/api/kiosk/map-data'),
+      axios.get('/api/kiosk/buildinglabel'),
+    ])
+      .then(([mapRes, labelRes]) => {
+        setMapData(mapRes.data);
+        if (Array.isArray(labelRes.data)) setBuildingLabels(labelRes.data);
+      })
       .catch(() => setDataError(t('navigation.failedToLoad')))
       .finally(() => setLoadingData(false));
   }, [mapStarted]);
@@ -156,6 +170,39 @@ const Navigation = () => {
       leafletMapRef.current = null;
     };
   }, [mapStarted, mapData]);
+
+  // ── 3. Render permanent building labels (re-runs if labels or map change) ─
+  useEffect(() => {
+    const map = leafletMapRef.current;
+    if (!map || buildingLabels.length === 0) return;
+
+    // Remove previous label layer
+    buildingLayerGroupRef.current?.remove();
+    const group = L.layerGroup();
+
+    buildingLabels.forEach((b) => {
+      const html = b.sub
+        ? `<span class="bldg-pill"><span class="bldg-name">${b.name}</span><span class="bldg-sub">${b.sub}</span></span>`
+        : `<span class="bldg-pill"><span class="bldg-name">${b.name}</span></span>`;
+
+      L.circleMarker([b.lat, b.lng], {
+        radius: 0,
+        opacity: 0,
+        fillOpacity: 0,
+        interactive: false,
+      })
+        .bindTooltip(html, {
+          permanent: true,
+          direction: 'center',
+          className: 'bldg-tooltip',
+        })
+        .addTo(group)
+        .openTooltip();
+    });
+
+    group.addTo(map);
+    buildingLayerGroupRef.current = group;
+  }, [buildingLabels, leafletMapRef.current]);
 
   // ── drawPath ─────────────────────────────────────────────────────────────
   /** Draws the selected path on the map: blue polyline, green start, red end. */
@@ -415,6 +462,54 @@ const Navigation = () => {
           padding: 2px 7px;
         }
         .leaflet-tooltip-end::before { border-top-color: #dc2626; }
+
+        /* ── Building name labels ─────────────────────────────────── */
+        .bldg-tooltip {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+          pointer-events: none !important;
+        }
+        .bldg-tooltip::before { display: none !important; }
+        .bldg-pill {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1px;
+          pointer-events: none;
+        }
+        .bldg-name {
+          display: block;
+          background: rgba(255, 255, 255, 0.93);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: #0f172a;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.02em;
+          padding: 3px 8px;
+          border-radius: 6px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.8);
+          white-space: nowrap;
+          line-height: 1.3;
+          border: 1px solid rgba(255,255,255,0.6);
+        }
+        .bldg-sub {
+          display: block;
+          background: rgba(0, 43, 92, 0.82);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+          color: #fff;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          padding: 2px 6px;
+          border-radius: 4px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+          white-space: nowrap;
+          line-height: 1.3;
+        }
       `}</style>
     </div>
   );
