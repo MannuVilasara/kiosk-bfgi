@@ -78,7 +78,7 @@ const Schedule = () => {
   const deptCount = [...new Set(schedules.map((s) => s.departmentName))].length;
 
   return (
-    <div className="h-full w-full bg-zinc- rounded-3xl overflow-hidden flex flex-col font-sans">
+    <div className="h-full w-full bg-zinc-50 rounded-3xl overflow-hidden flex flex-col font-sans">
 
       <div className="bg-linear-to-br from-[#001428] via-[#002050] to-[#002b5c] px-7 pt-6 pb-5 shrink-0">
         <div className="flex items-center gap-2 text-white/35 text-[10px] font-black uppercase tracking-[0.3em] mb-2">
